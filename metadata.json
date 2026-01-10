@@ -1,0 +1,5 @@
+{
+  "name": "Skill Matrix Dashboard",
+  "description": "A comprehensive dashboard for tracking engineer workload distribution across various technical skills based on incident data, featuring AI-powered workload insights.",
+  "requestFramePermissions": []
+}
