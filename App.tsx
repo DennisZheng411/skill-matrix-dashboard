@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchIncidents, processMatrixData } from './services/api.ts';
 import { SkillMatrixData } from './types.ts';
@@ -58,7 +59,7 @@ const App: React.FC = () => {
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Skill Matrix Dashboard</h1>
           </div>
           <p className="text-slate-500 max-w-lg">
-            Monitor and analyze technical support workload distribution across engineering teams based on live incident telemetry.
+            Monitor workload distribution using live incident telemetry and engineering resources.
           </p>
         </div>
 
@@ -107,11 +108,11 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <main className="relative mb-8">
+      <main className="relative mb-12">
         {loading ? (
           <div className="p-32 flex flex-col items-center justify-center text-slate-400 gap-4 bg-white rounded-xl border border-slate-100 shadow-sm">
             <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="font-medium">Updating workload matrix...</p>
+            <p className="font-medium">Fetching real-time telemetry...</p>
           </div>
         ) : (
           data && <SkillMatrix data={data} />
