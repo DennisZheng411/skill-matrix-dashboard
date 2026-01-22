@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchIncidents, processMatrixData } from './services/api';
-import { getAIInsights } from './services/gemini';
 import { SkillMatrixData } from './types';
 import SkillMatrix from './components/SkillMatrix';
 import DashboardStats from './components/DashboardStats';
@@ -10,15 +9,13 @@ import { formatDate } from './utils/converters';
 const App: React.FC = () => {
   const [startDate, setStartDate] = useState<string>(() => {
     const d = new Date();
-    d.setDate(d.getDate() - 30); // Default to last 30 days
+    d.setDate(d.getDate() - 30);
     return formatDate(d);
   });
   const [endDate, setEndDate] = useState<string>(() => formatDate(new Date()));
   const [data, setData] = useState<SkillMatrixData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [loadingInsight, setLoadingInsight] = useState<boolean>(false);
 
   const handleSearch = useCallback(async () => {
     if (!startDate || !endDate) {
@@ -28,21 +25,13 @@ const App: React.FC = () => {
 
     setLoading(true);
     setError(null);
-    setAiInsight(null);
 
     try {
       const rawData = await fetchIncidents(startDate, endDate);
       const processed = processMatrixData(rawData);
       setData(processed);
       
-      // Fetch AI insights asynchronously
-      if (processed.totalCases > 0) {
-        setLoadingInsight(true);
-        getAIInsights(processed)
-          .then(insight => setAiInsight(insight))
-          .catch(err => setAiInsight("Error generating AI insight: " + err.message))
-          .finally(() => setLoadingInsight(false));
-      } else {
+      if (processed.totalCases === 0) {
         setError("No incidents found for the selected date range.");
       }
     } catch (err: any) {
@@ -53,14 +42,13 @@ const App: React.FC = () => {
     }
   }, [startDate, endDate]);
 
-  // Initial load
   useEffect(() => {
     handleSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 md:p-8">
+    <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-16">
       {/* Header */}
       <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -129,25 +117,21 @@ const App: React.FC = () => {
         </div>
       )}
 
-       {/* Matrix Table */}
+      {/* Matrix Table */}
       <main className="relative mb-8">
         {loading ? (
           <div className="p-32 flex flex-col items-center justify-center text-slate-400 gap-4 bg-white rounded-xl border border-slate-100 shadow-sm">
             <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="font-medium">Fetching workload matrix...</p>
+            <p className="font-medium">Fetching workload matrix telemetry...</p>
           </div>
         ) : (
           data && <SkillMatrix data={data} />
         )}
       </main>
       
-      {/* Stats Cards and AI Insights */}
+      {/* Stats Cards (Simplified) */}
       {data && !loading && (
-        <DashboardStats 
-          data={data} 
-          aiInsight={aiInsight} 
-          loadingInsight={loadingInsight} 
-        />
+        <DashboardStats data={data} />
       )}
 
       {!data && !loading && !error && (
